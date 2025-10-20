@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx-custom:latest
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+    deploy:
+      replicas: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      placement:
+        max_replicas_per_node: 1
+    networks:
+      - nginx-network
+
+networks:
+  nginx-network:
+    driver: overlay
+
