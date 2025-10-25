@@ -21,9 +21,9 @@ resource "aws_lb_target_group" "this" {
     path                = "/"
     matcher             = "200-399"
     interval            = 30
-    timeout             = 5
+    timeout             = 10
     healthy_threshold   = 2
-    unhealthy_threshold = 2
+    unhealthy_threshold = 3
   }
 
   tags = {

@@ -52,12 +52,21 @@ resource "aws_security_group" "instance_sg" {
   }
 
   # HTTP from ALB only
+  # ingress {
+  #   from_port       = 80
+  #   to_port         = 80
+  #   protocol        = "tcp"
+  #   security_groups = [aws_security_group.alb_sg.id]
+  #   description     = "HTTP from ALB"
+  # }
+
+  # HTTP from VPC (for internal health checks and testing)
   ingress {
-    from_port       = 80
-    to_port         = 80
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb_sg.id]
-    description     = "HTTP from ALB"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr]
+    description = "HTTP from VPC"
   }
 
   # Docker Swarm ports for inter-node communication

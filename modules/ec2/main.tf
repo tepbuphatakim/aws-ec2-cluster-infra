@@ -71,8 +71,6 @@ resource "aws_instance" "swarm_manager" {
   user_data = base64encode(templatefile("${path.root}/user-data-manager.sh", {
     environment        = var.environment
     desired_capacity   = var.desired_capacity
-    dockerfile_content = file("${path.root}/Dockerfile")
-    entrypoint_content = file("${path.root}/entrypoint.sh")
     compose_content    = templatefile("${path.root}/docker-compose.yml.tpl", {
       desired_capacity = var.desired_capacity
     })
@@ -90,8 +88,8 @@ resource "aws_instance" "swarm_manager" {
 }
 
 # Launch Template for Worker Nodes
-resource "aws_launch_template" "nginx_cluster" {
-  name_prefix   = "${var.environment}-nginx-worker-"
+resource "aws_launch_template" "swarm_worker" {
+  name_prefix   = "${var.environment}-swarm-worker-"
   image_id      = data.aws_ami.amazon_linux_2.id
   instance_type = var.instance_type
   key_name      = var.key_name
@@ -121,25 +119,25 @@ resource "aws_launch_template" "nginx_cluster" {
 }
 
 # Auto Scaling Group
-resource "aws_autoscaling_group" "nginx_cluster" {
-  name                = "${var.environment}-nginx-asg"
+resource "aws_autoscaling_group" "swarm_worker" {
+  name                = "${var.environment}-swarm-worker-asg"
   vpc_zone_identifier = var.subnet_ids
   target_group_arns   = [var.target_group_arn]
   health_check_type   = "ELB"
-  health_check_grace_period = 300
+  health_check_grace_period = 600
   
   min_size         = var.min_size
   max_size         = var.max_size
   desired_capacity = var.desired_capacity
 
   launch_template {
-    id      = aws_launch_template.nginx_cluster.id
+    id      = aws_launch_template.swarm_worker.id
     version = "$Latest"
   }
 
   tag {
     key                 = "Name"
-    value               = "${var.environment}-nginx-asg-instance"
+    value               = "${var.environment}-swarm-worker"
     propagate_at_launch = true
   }
 
@@ -153,7 +151,7 @@ resource "aws_autoscaling_group" "nginx_cluster" {
 # Auto Scaling Policy - Target Tracking (CPU)
 resource "aws_autoscaling_policy" "cpu_scaling" {
   name                   = "${var.environment}-cpu-scaling-policy"
-  autoscaling_group_name = aws_autoscaling_group.nginx_cluster.name
+  autoscaling_group_name = aws_autoscaling_group.swarm_worker.name
   policy_type            = "TargetTrackingScaling"
 
   target_tracking_configuration {
@@ -167,7 +165,7 @@ resource "aws_autoscaling_policy" "cpu_scaling" {
 # Step Scaling Policy - Scale Down when CPU is low
 resource "aws_autoscaling_policy" "scale_down" {
   name                   = "${var.environment}-scale-down-policy"
-  autoscaling_group_name = aws_autoscaling_group.nginx_cluster.name
+  autoscaling_group_name = aws_autoscaling_group.swarm_worker.name
   adjustment_type        = "ChangeInCapacity"
   policy_type            = "StepScaling"
   
@@ -191,6 +189,6 @@ resource "aws_cloudwatch_metric_alarm" "low_cpu" {
   alarm_actions       = [aws_autoscaling_policy.scale_down.arn]
 
   dimensions = {
-    AutoScalingGroupName = aws_autoscaling_group.nginx_cluster.name
+    AutoScalingGroupName = aws_autoscaling_group.swarm_worker.name
   }
 }

@@ -54,18 +54,6 @@ sleep 30
 mkdir -p /opt/nginx-swarm
 cd /opt/nginx-swarm
 
-# # Write Dockerfile from Terraform variable (kept for reference, not used)
-# cat > Dockerfile <<'EOF'
-# ${dockerfile_content}
-# EOF
-
-# # Write entrypoint.sh from Terraform variable (kept for reference, not used)
-# cat > entrypoint.sh <<'EOF'
-# ${entrypoint_content}
-# EOF
-
-# Make entrypoint executable (kept for reference, not used)
-# chmod +x entrypoint.sh
 
 # Write docker-compose.yml from Terraform variable
 cat > docker-compose.yml <<'EOF'

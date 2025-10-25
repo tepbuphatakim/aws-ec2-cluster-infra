@@ -1,16 +1,16 @@
 output "autoscaling_group_id" {
   description = "ID of the Auto Scaling Group"
-  value       = aws_autoscaling_group.nginx_cluster.id
+  value       = aws_autoscaling_group.swarm_worker.id
 }
 
 output "autoscaling_group_name" {
   description = "Name of the Auto Scaling Group"
-  value       = aws_autoscaling_group.nginx_cluster.name
+  value       = aws_autoscaling_group.swarm_worker.name
 }
 
 output "launch_template_id" {
   description = "ID of the Launch Template"
-  value       = aws_launch_template.nginx_cluster.id
+  value       = aws_launch_template.swarm_worker.id
 }
 
 output "swarm_manager_id" {
