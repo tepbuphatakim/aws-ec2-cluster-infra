@@ -2,9 +2,9 @@ version: '3.8'
 
 services:
   nginx:
-    image: nginx:latest
+    image: 015331741/aws-ec2-cluster-infra-app:v0.0.1-22609c1
     ports:
-      - target: 80
+      - target: 5000
         published: 80
         protocol: tcp
         mode: host

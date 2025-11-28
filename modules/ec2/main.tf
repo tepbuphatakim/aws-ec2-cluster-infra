@@ -71,7 +71,7 @@ resource "aws_instance" "swarm_manager" {
   user_data = base64encode(templatefile("${path.root}/user-data-manager.sh", {
     environment        = var.environment
     desired_capacity   = var.desired_capacity
-    compose_content    = templatefile("${path.root}/docker-compose.yml.tpl", {
+    compose_content    = templatefile("${path.root}/docker-compose.yml", {
       desired_capacity = var.desired_capacity
     })
   }))
