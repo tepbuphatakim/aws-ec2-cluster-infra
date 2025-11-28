@@ -14,7 +14,7 @@ You need an EC2 key pair to SSH into your instances. Create one using either met
 **Option 1: Using AWS CLI**
 ```bash
 # Create a new key pair and save it locally
-aws ec2 create-key-pair --key-name my-cluster-key --query 'KeyMaterial' --output text > my-cluster-key.pem
+aws ec2 create-key-pair --key-name my-cluster-key --region ap-southeast-1 --query 'KeyMaterial' --output text > my-cluster-key.pem
 
 # Set appropriate permissions (Linux/Mac)
 chmod 400 my-cluster-key.pem
