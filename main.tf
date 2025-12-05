@@ -38,3 +38,11 @@ module "ec2" {
   max_size           = var.asg_max_size
   desired_capacity   = var.asg_desired_capacity
 }
+
+module "apigw" {
+  source = "./modules/apigw"
+
+  name        = var.environment
+  environment = var.environment
+  alb_dns_name = module.alb.alb_dns_name
+}

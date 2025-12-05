@@ -125,6 +125,8 @@ Type `yes` when prompted.
 ```
 Internet
     ↓
+Amazon API Gateway (HTTP API)
+    ↓
 Application Load Balancer (ALB)
     ↓
 Target Group
@@ -137,3 +139,9 @@ Docker Swarm Service (Nginx)
     ↓
 Spread across multiple Availability Zones
 ```
+
+The **primary public entry point** for your applications is now **API Gateway**, which proxies
+all incoming HTTP requests to the **ALB**, and then to the Docker Swarm cluster. You can still
+access the ALB URL directly (for troubleshooting or internal use), but for external clients
+you should use the `api_gateway_url` output.
+
