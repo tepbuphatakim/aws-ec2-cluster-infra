@@ -31,17 +31,24 @@ icacls my-cluster-key.pem /inheritance:r /grant:r "$($env:USERNAME):(R)"
 cd aws-ec2-cluster-infra
 ```
 
-### 2. Update `terraform.tfvars`
+### 2. Choose an environment (UAT / PROD)
 
-Create or update `terraform.tfvars` with your values:
+This repo is set up to deploy the **same infra** into separate environments using:
+
+- **Terraform workspaces** for separate state (`uat`, `prod`)
+- **Per-environment tfvars files**: `uat.tfvars`, `prod.tfvars`
+
+You can still use `terraform.tfvars` for a local/dev environment if you want, but for UAT/PROD use the files below.
+
+#### UAT configuration (`uat.tfvars`)
 
 ```hcl
-aws_region         = "us-east-1"
-environment        = "development"
+aws_region         = "ap-southeast-1"
+environment        = "uat"
 vpc_cidr           = "10.0.0.0/16"
-availability_zones = ["us-east-1a", "us-east-1b"]
+availability_zones = ["ap-southeast-1a", "ap-southeast-1b"]
 instance_type      = "t2.micro"
-key_name          = "my-cluster-key"  # Use the key pair name you created above (without .pem extension)
+key_name           = "my-cluster-key-3"
 
 # Auto Scaling Configuration
 asg_min_size         = 2
@@ -49,13 +56,47 @@ asg_max_size         = 4
 asg_desired_capacity = 2
 ```
 
+#### PROD configuration (`prod.tfvars`)
+
+```hcl
+aws_region         = "ap-southeast-1"
+environment        = "prod"
+vpc_cidr           = "10.1.0.0/16"
+availability_zones = ["ap-southeast-1a", "ap-southeast-1b"]
+instance_type      = "t2.micro"
+key_name           = "my-cluster-key-3"
+
+# Auto Scaling Configuration
+asg_min_size         = 2
+asg_max_size         = 4
+asg_desired_capacity = 2
+```
+
+> Make sure `key_name` matches an existing EC2 key pair in `ap-southeast-1`.
+
 ### 3. Initialize Terraform
 
 ```bash
 terraform init
 ```
 
-### 4. Review the Plan
+### 4. Select environment and review the plan
+
+#### UAT
+
+```bash
+terraform workspace new uat      # first time only
+terraform workspace select uat
+terraform plan -var-file=uat.tfvars
+```
+
+#### PROD
+
+```bash
+terraform workspace new prod     # first time only
+terraform workspace select prod
+terraform plan -var-file=prod.tfvars
+```
 
 ```bash
 terraform plan
@@ -63,8 +104,18 @@ terraform plan
 
 ### 5. Deploy Infrastructure
 
+#### Deploy to UAT
+
 ```bash
-terraform apply
+terraform workspace select uat
+terraform apply -var-file=uat.tfvars
+```
+
+#### Deploy to PROD
+
+```bash
+terraform workspace select prod
+terraform apply -var-file=prod.tfvars
 ```
 
 Type `yes` when prompted.
