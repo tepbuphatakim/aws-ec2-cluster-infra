@@ -28,3 +28,14 @@ variable "swarm_manager_instance_id" {
   type        = string
 }
 
+variable "alb_logs_bucket" {
+  description = "S3 bucket name for ALB access logs (set to null to disable logging)"
+  type        = string
+  default     = null
+}
+
+variable "alarm_actions" {
+  description = "List of ARNs to notify when ALB CloudWatch alarms fire (e.g., SNS topics)"
+  type        = list(string)
+  default     = []
+}
